@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'questions.dart';
+import 'package:quizzler/open_trivia_db.dart';
 
 void main() => runApp(Quizzler());
 
@@ -60,17 +61,24 @@ class _QuizPageState extends State<QuizPage> {
 //  Question q1 = new Question(
 //      q: 'You can lead a cow down stairs but not up stairs.', a: false);
 
-  List<Question> questionBank = [
-    Question(q: 'You can lead a cow down stairs but not up stairs.', a: false),
-    Question(
-        q: 'Approximately one quarter of human bones are in the feet.',
-        a: true),
-    Question(q: 'A slug\'s blood is green.', a: true)
-  ];
+  List<Question> questionBank = [];
   int questionNumber = 0;
 
   @override
+  void initState() {
+    super.initState();
+    OpenTriviaDb.fetchQuestions(10).then((questions) {
+      setState(() {
+        questionBank = questions;
+      });
+    }).catchError((e) => print(e));
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (questionBank.isEmpty) {
+      return Center(child: CircularProgressIndicator());
+    }
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.stretch,
