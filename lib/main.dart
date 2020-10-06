@@ -78,55 +78,56 @@ class _QuizPageState extends State<QuizPage> {
   Widget build(BuildContext context) {
     if (questionBank.isEmpty) {
       return Center(child: CircularProgressIndicator());
-    }
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Expanded(
-          flex: 5,
-          child: Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Center(
-              child: Text(
-                questionBank[questionNumber].questionText,
-                style: TextStyle(
-                  fontSize: 25.0,
-                  color: Colors.white,
+    } else {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+            flex: 5,
+            child: Padding(
+              padding: EdgeInsets.all(10.0),
+              child: Center(
+                child: Text(
+                  questionBank[questionNumber].questionText,
+                  style: TextStyle(
+                    fontSize: 25.0,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.all(15.0),
-            child: FlatButton(
-                textColor: Colors.white,
-                color: Colors.green,
-                child: Text("True"),
-                onPressed: () {
-                  checkAnswer(true);
-                }),
-          ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.all(15.0),
-            child: FlatButton(
-              textColor: Colors.white,
-              color: Colors.red,
-              child: Text("False"),
-              onPressed: () {
-                checkAnswer(false);
-              },
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(15.0),
+              child: FlatButton(
+                  textColor: Colors.white,
+                  color: Colors.green,
+                  child: Text("True"),
+                  onPressed: () {
+                    checkAnswer(true);
+                  }),
             ),
           ),
-        ),
-        Row(
-          children: scoreKeeper,
-        ),
-      ],
-    );
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(15.0),
+              child: FlatButton(
+                textColor: Colors.white,
+                color: Colors.red,
+                child: Text("False"),
+                onPressed: () {
+                  checkAnswer(false);
+                },
+              ),
+            ),
+          ),
+          Row(
+            children: scoreKeeper,
+          ),
+        ],
+      );
+    }
   }
 }
