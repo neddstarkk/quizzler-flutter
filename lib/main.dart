@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'questions.dart';
 import 'package:quizzler/open_trivia_db.dart';
 
@@ -7,8 +9,8 @@ void main() => runApp(Quizzler());
 class Quizzler extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: null,
         backgroundColor: Colors.grey.shade900,
@@ -29,30 +31,39 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> {
-  List<Icon> scoreKeeper = [];
-
-  void checkAnswer(bool userPickedAnswer) {
-    bool correctAnswer = questionBank[questionNumber].questionAnswer;
-
-    if (userPickedAnswer == correctAnswer) {
-      scoreKeeper.add(Icon(
-        Icons.check,
-        color: Colors.green,
-      ));
-    } else {
-      scoreKeeper.add(Icon(
-        Icons.close,
-        color: Colors.red,
-      ));
-    }
-    setState(() {
-      questionNumber++;
-    });
-  }
-
+//
+//  void checkAnswer(bool userPickedAnswer) {
+//
+//
+//	bool correctAnswer = questionBank[questionNumber].questionAnswer;
+//
+//	if (userPickedAnswer == correctAnswer) {
+//	  scoreKeeper.add(Icon(
+//		Icons.check,
+//		color: Colors.green,
+//
+//	  ));
+//	} else {
+//	  scoreKeeper.add(Icon(
+//		Icons.close,
+//		color: Colors.red,
+//	  ));
+//	}
+//
+//	setState(() {
+//
+//	  questionNumber++;
+//	},
+//	)
+//	;
+//  }
+//
 //  List<String> questions = [
+//
 //    'You can lead a cow down stairs but not up stairs.',
+//
 //    'Approximately one quarter of human bones are in the feet.',
+//
 //    'A slug\'s blood is green.',
 //  ];
 //
@@ -61,13 +72,107 @@ class _QuizPageState extends State<QuizPage> {
 //  Question q1 = new Question(
 //      q: 'You can lead a cow down stairs but not up stairs.', a: false);
 
+  List<Icon> scoreKeeper = [];
+  int score = 0;
+
+  bool isFinished() {
+    if (questionNumber >= questionBank.length - 1)
+      return true;
+    else
+      return false;
+  }
+
+  void nextQuestion() {
+    if (questionNumber < questionBank.length - 1) {
+      questionNumber++;
+    }
+  }
+
+  void reset() {
+    questionNumber = 0;
+  }
+
+  void checkAnswer(bool userPickedAnswer) {
+    bool correctAnswer = questionBank[questionNumber].questionAnswer;
+
+    var alertStyle = AlertStyle(
+      animationType: AnimationType.grow,
+      isCloseButton: false,
+      isOverlayTapDismiss: true,
+      descStyle: TextStyle(fontWeight: FontWeight.bold),
+      animationDuration: Duration(milliseconds: 500),
+      alertBorder: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(
+          color: Colors.grey,
+        ),
+      ),
+      titleStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+        color: Colors.red,
+        fontSize: 25,
+      ),
+    );
+
+    setState(() {
+      if (isFinished()) {
+        Alert(
+          context: context,
+          style: alertStyle,
+          type: AlertType.success,
+          title: "CONGRATULATIONS",
+          desc: "Score: $score ",
+          buttons: [
+            DialogButton(
+              child: Text(
+                "NEW QUIZ",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Quizzler(),
+                  ),
+                );
+                setState(() {
+                  reset();
+                  scoreKeeper.clear();
+                  score = 0;
+                });
+              },
+              width: 150,
+              color: Color.fromRGBO(0, 179, 134, 1.0),
+              radius: BorderRadius.circular(8),
+            ),
+          ],
+        ).show();
+      } else {
+        if (userPickedAnswer == correctAnswer) {
+          scoreKeeper.add(Icon(
+            Icons.check,
+            color: Colors.green,
+          ));
+          score++;
+        } else {
+          scoreKeeper.add(Icon(
+            Icons.close,
+            color: Colors.red,
+          ));
+        }
+        nextQuestion();
+      }
+    });
+  }
+
   List<Question> questionBank = [];
   int questionNumber = 0;
+  int qCount = 12;
 
   @override
   void initState() {
     super.initState();
-    OpenTriviaDb.fetchQuestions(10).then((questions) {
+    OpenTriviaDb.fetchQuestions(qCount).then((questions) {
       setState(() {
         questionBank = questions;
       });
@@ -77,7 +182,11 @@ class _QuizPageState extends State<QuizPage> {
   @override
   Widget build(BuildContext context) {
     if (questionBank.isEmpty) {
-      return Center(child: CircularProgressIndicator());
+      return Center(
+          child: SpinKitSquareCircle(
+        size: 50,
+        color: Colors.yellow,
+      ));
     } else {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -123,8 +232,11 @@ class _QuizPageState extends State<QuizPage> {
               ),
             ),
           ),
-          Row(
-            children: scoreKeeper,
+          SingleChildScrollView(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: scoreKeeper,
+            ),
           ),
         ],
       );
